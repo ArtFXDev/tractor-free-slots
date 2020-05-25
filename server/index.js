@@ -1,4 +1,9 @@
-const app = require('express')();
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
@@ -19,8 +24,39 @@ http.listen(8734, () => {
 
 var clients = {};
 
-app.all('/hosts/:hostname/reboot', (req, res) => {
+app.all('/reboot', (req, res) => {
+  console.log("reboot");
+  console.log(req.body);
+  let hostnames = req.body.clients;
+  for(let i = 0; i < hostnames.length; i++) {
+    let client = clients[hostnames[i]];
+    if(client && client.connected) {
+      client.socket.emit("reboot");
+      res.send("Client is going to reboot")
+    } else {
+      res.send("The client was not found")
+    }
+  }
+});
+
+app.all('/pools/:pool', (req, res) => {
+  console.log("Add to pool");
   console.log(req.params);
+  let pool = req.params.pool;
+  console.log(req.body);
+  let hostnames = req.body.clients;
+
+  for(let i = 0; i < hostnames.length; i++) {
+    let client = clients[hostnames[i]];
+    if(client && client.connected) {
+      client.socket.emit("changePool", pool);
+    }
+  }
+  // let client = clients[req.params.hostname]
+  // if(client) {
+  //   client.socket.emit("reboot");
+  // }
+  res.send("Clients are added to the pool")
 });
 
 io.on('connection', (socket) => {
@@ -65,17 +101,14 @@ setInterval(() => {
           let hostname = blades[i].hnm;
           console.log(hostname);
           let client = clients[hostname]
-          if(client) {
+          if(client && client.connected) {
             client.socket.emit("freeSlots");
           }
         }
       }
-      // let hostname = "DESKTOP-NPQCVOP";
-      // let client = clients[hostname];
-      // client.socket.emit("freeSlots");
     })
     .catch(function (error) {
        // handle error
        console.log(error);
      })
-}, 1000 * 10000);
+}, 1000 * 60 * 15);

@@ -3,6 +3,7 @@ const io = require('socket.io-client');
 const find = require('find-process');
 var ps = require('ps-node');
 const { exec } = require("child_process");
+const { existsSync, mkdir, writeFile } = require("fs");
 
 const softwareList = [
   "houdini",
@@ -68,5 +69,25 @@ socket.on("freeSlots", () => {
 });
 
 socket.on("reboot", () => {
+  console.log("reboot");
   reboot();
+});
+
+socket.on("changePool", (data) => {
+  console.log("Change Pool");
+  console.log(data);
+  if(!existsSync('C:/Tractor-Pool')) {
+    mkdir('C:/Tractor-Pool', (err) => {
+      if (err) throw err;
+      writeFile(`C:/Tractor-Pool/${data}.txt`, '', (err) => {
+        if (err) throw err;
+        console.log('File is created successfully.');
+      });
+    })
+  } else {
+    writeFile(`C:/Tractor-Pool/${data}.txt`, '', (err) => {
+      if (err) throw err;
+      console.log('File is created successfully.');
+    });
+  }
 });
