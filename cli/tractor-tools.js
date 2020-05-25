@@ -7,15 +7,16 @@ program
 
 program.command('reboot <clients...>')
   .description('Reboots clients')
-  .action((client) => {
+  .action((clients) => {
     console.log(`Reboot: ${clients}`);
-    axios.post(`http://tractor-tools:8734//reboot`, {clients: clients})
+    axios.post(`http://tractor-tools:8734/reboot`, {clients: clients})
       .then((response) => {
         console.log(response.data);
       })
       .catch(function (error) {
          // handle error
-         console.log(error);
+         // console.log(error);
+         console.log("error");
        })
   });
 
