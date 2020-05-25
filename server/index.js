@@ -1,15 +1,27 @@
-const io = require('socket.io')(8734, {
-  // path: '/test',
-  serveClient: false,
-  // below are engine.IO options
-  // pingInterval: 10000,
-  // pingTimeout: 5000,
-  // cookie: false
-});
+const app = require('express')();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
 const axios = require('axios');
 
+// const io = require('socket.io')(8734, {
+//   // path: '/test',
+//   serveClient: false,
+//   // below are engine.IO options
+//   // pingInterval: 10000,
+//   // pingTimeout: 5000,
+//   // cookie: false
+// });
+
+http.listen(8734, () => {
+  console.log('listening on *:8734');
+});
+
 var clients = {};
+
+app.all('/hosts/:hostname/reboot', (req, res) => {
+  console.log(req.params);
+});
 
 io.on('connection', (socket) => {
   socket.emit('getHostname');
@@ -45,15 +57,25 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
   console.log("Check for clients without free slots");
-  // axios.get("http://tractor/Tractor/monitor?q=blades")
-  //   .then((response) => {
-  //     let clients = response.data.blades;
-      let hostname = "DESKTOP-NPQCVOP";
-      let client = clients[hostname];
-      client.socket.emit("freeSlots");
-    // })
-    // .catch(function (error) {
-    //    // handle error
-    //    console.log(error);
-    //  })
-}, 1000 * 60);
+  axios.get("http://tractor/Tractor/monitor?q=blades")
+    .then((response) => {
+      let blades = response.data.blades;
+      for(let i = 0; i < blades.length; i++) {
+        if(blades[i].note == "no free slots (1)" && blades[i].as == 1) {
+          let hostname = blades[i].hnm;
+          console.log(hostname);
+          let client = clients[hostname]
+          if(client) {
+            client.socket.emit("freeSlots");
+          }
+        }
+      }
+      // let hostname = "DESKTOP-NPQCVOP";
+      // let client = clients[hostname];
+      // client.socket.emit("freeSlots");
+    })
+    .catch(function (error) {
+       // handle error
+       console.log(error);
+     })
+}, 1000 * 10000);

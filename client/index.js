@@ -14,7 +14,7 @@ const softwareList = [
   "Nuke11.3"
 ];
 
-const socket = io("http://localhost:8734");
+const socket = io("http://tractor-tools:8734");
 
 var killProcesses = (pids) => {
   pids.forEach((pid) => {
@@ -65,4 +65,8 @@ socket.on("freeSlots", () => {
   if(restart) {
     reboot();
   }
+});
+
+socket.on("reboot", () => {
+  reboot();
 });
