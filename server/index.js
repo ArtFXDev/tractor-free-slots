@@ -9,15 +9,6 @@ const io = require('socket.io')(http);
 
 const axios = require('axios');
 
-// const io = require('socket.io')(8734, {
-//   // path: '/test',
-//   serveClient: false,
-//   // below are engine.IO options
-//   // pingInterval: 10000,
-//   // pingTimeout: 5000,
-//   // cookie: false
-// });
-
 http.listen(8734, () => {
   console.log('listening on *:8734');
 });
@@ -39,6 +30,17 @@ app.all('/reboot', (req, res) => {
   }
 });
 
+app.all('/reboot/all', (req, res) => {
+  console.log("Reboot all clients");
+  for(let hostname in clients) {
+    let client = clients[hostname];
+    if(client && client.connected) {
+      client.socket.emit("reboot");
+    }
+  }
+  res.send("All clients are rebooting");
+});
+
 app.all('/pools/:pool', (req, res) => {
   console.log("Add to pool");
   console.log(req.params);
@@ -52,10 +54,6 @@ app.all('/pools/:pool', (req, res) => {
       client.socket.emit("changePool", pool);
     }
   }
-  // let client = clients[req.params.hostname]
-  // if(client) {
-  //   client.socket.emit("reboot");
-  // }
   res.send("Clients are added to the pool")
 });
 

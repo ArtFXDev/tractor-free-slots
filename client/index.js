@@ -3,7 +3,8 @@ const io = require('socket.io-client');
 const find = require('find-process');
 var ps = require('ps-node');
 const { exec } = require("child_process");
-const { existsSync, mkdir, writeFile } = require("fs");
+const fs = require("fs");
+const path = require('path');
 
 const softwareList = [
   "houdini",
@@ -75,17 +76,24 @@ socket.on("reboot", () => {
 
 socket.on("changePool", (data) => {
   console.log("Change Pool");
-  console.log(data);
-  if(!existsSync('C:/Tractor-Pool')) {
-    mkdir('C:/Tractor-Pool', (err) => {
+
+  if(!fs.existsSync('C:/Tractor-Pool')) {
+    fs.mkdir('C:/Tractor-Pool', (err) => {
       if (err) throw err;
-      writeFile(`C:/Tractor-Pool/${data}.txt`, '', (err) => {
+      fs.writeFile(`C:/Tractor-Pool/${data}`, '', (err) => {
         if (err) throw err;
         console.log('File is created successfully.');
       });
     })
   } else {
-    writeFile(`C:/Tractor-Pool/${data}.txt`, '', (err) => {
+    let files = fs.readdirSync("C:/Tractor-Pool");
+    for(let i = 0; i < files.length; i++) {
+      fs.unlink(path.join("C:/Tractor-Pool", files[i]), (err) => {
+        if (err) throw err;
+      });
+    }
+
+    fs.writeFile(`C:/Tractor-Pool/${data}`, '', (err) => {
       if (err) throw err;
       console.log('File is created successfully.');
     });
