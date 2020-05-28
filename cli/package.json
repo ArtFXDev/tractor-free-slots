@@ -2,10 +2,15 @@
   "name": "cli",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "build": "pkg index.js -o artfx-tractor.exe"
+  },
   "license": "MIT",
   "dependencies": {
     "axios": "^0.19.2",
     "chalk": "^4.0.0",
-    "commander": "^5.1.0"
+    "chalk-table": "^1.0.2",
+    "commander": "^5.1.0",
+    "node-emoji": "^1.10.0"
   }
 }
