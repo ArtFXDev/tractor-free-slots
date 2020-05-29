@@ -93,36 +93,83 @@ program.command('pool <name> [clients...]')
     }
   });
 
-program.command('detail <client>')
-  .description('Get details about a client')
-  .action((client) => {
-    axios.post(`http://tractor-tools:8734/client/${client}`)
-      .then((response) => {
-        let data = response.data;
+program.command('details [clients...]')
+  .description('Get details about a clients')
+  .option('-f, --file <file>', "Use a file containing a list of clients (1 client per line)")
+  .action((clients, cmd) => {
+    let options = cmd.opts();
+    let tableOptions = {
+      leftPad: 2,
+      columns: [
+        { field: "host", name: chalk.cyan("Hostname") },
+        { field: "pool", name: chalk.green("Pool") },
+        { field: "ip", name: chalk.magenta("IP") },
+        { field: "connected", name: chalk.yellow("Connected") },
+        { field: "error", name: chalk.red("Error") }
+      ]
+    }
+    if(options.file != undefined) {
+      let hostnames = fs.readFileSync(options.file, 'utf8').split('\r\n');
+      axios.post(`http://tractor-tools:8734/details`, {clients: hostnames})
+        .then((response) => {
+          let data = response.data;
+          let clients = [];
 
-        let tableOptions = {
-          leftPad: 2,
-          columns: [
-            { field: "host", name: chalk.cyan("Hostname") },
-            { field: "pool", name: chalk.green("Pool") },
-            { field: "ip", name: chalk.magenta("IP") },
-            { field: data.error ? "error" : "connected", name: data.error ? chalk.red("Error") : chalk.yellow("Connected")}
-          ]
-        }
+          for(let i = 0; i < data.length; i++) {
+            let client = {
+              host: data[i].hostname,
+              pool: data[i].pool ? data[i].pool.replace("POOL_", "") : "",
+              ip: data[i].ip,
+              connected: data[i].connected,
+              error: data[i].error
+            }
+            clients.push(client);
+          }
 
-        let table = chalkTable(tableOptions, [
-          { host: data.hostname, pool: data.pool ? data.pool.substring(5) : "", ip: data.ip, connected: data.connected, error: data.error }
-        ]);
 
-        // if(data.error) {
-        //   log(data);
-        // }
-        log(table);
-      })
-      .catch(function (error) {
-        // handle error
-        // console.log(error);
-      })
+          let table = chalkTable(tableOptions, clients);
+          log(table);
+        })
+        .catch(function (error) {
+          // handle error
+        })
+    } else {
+      if(!clients.length > 0 ) {
+        log(chalk.red("No clients are given"));
+        log(chalk.red("Run the following to get details about:"));
+        log(chalk.blue.bold("tractor-tools details <client>"));
+        log(chalk.red("Or:"));
+        log(chalk.blue.bold("tractor-tools details <client> <client> ..."));
+        log(chalk.red("Or use a list of clients that are in a file (1 client per line)"));
+        log(chalk.blue.bold("tractor-tools details --file <file-path>"));
+        return;
+      }
+
+      axios.post(`http://tractor-tools:8734/details`, {clients: clients})
+        .then((response) => {
+          let data = response.data;
+          let clients = [];
+
+          for(let i = 0; i < data.length; i++) {
+            let client = {
+              host: data[i].hostname,
+              pool: data[i].pool ? data[i].pool.replace("POOL_", "") : "",
+              ip: data[i].ip,
+              connected: data[i].connected,
+              error: data[i].error
+            }
+            clients.push(client);
+          }
+
+
+          let table = chalkTable(tableOptions, clients);
+          log(table);
+        })
+        .catch(function (error) {
+          // handle error
+          // console.log(error);
+        })
+    }
   });
 
 program.command('list-missing')
@@ -148,6 +195,20 @@ program.command('list-missing')
     .description('Kill job and restart clients')
     .action((jobId) => {
       axios.get(`http://tractor-tools:8734/kill/${jobId}`)
+        .then((response) => {
+          let data = response.data;
+          log(chalk.cyan(data));
+        })
+        .catch(function (error) {
+          // handle error
+          // console.log(error);
+        })
+    });
+
+  program.command('create-job')
+    .description('Create job on Tractor')
+    .action(() => {
+      axios.post(`http://tractor-tools:8734/create-job`)
         .then((response) => {
           let data = response.data;
           log(chalk.cyan(data));
