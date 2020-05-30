@@ -31,9 +31,25 @@ MongoClient.connect(dbUrl, {
    useUnifiedTopology: true
  }, (err, client) => {
   assert.equal(null, err);
-  console.log("Connected successfully to Database");
+  log("Connected successfully to Database");
   dbClient = client;
   db = client.db("artfx-tractor");
+
+  const collection = db.collection('clients');
+
+  collection.find({}).toArray(function(err, docs) {
+    assert.equal(err, null);
+
+    for(let i = 0; i < docs.length; i++) {
+      if(!(docs[i].hostname in clients)) {
+        clients[docs[i].hostname] = docs[i];
+      } else {
+        for(let key in docs[i]) {
+          clients[docs[i].hostname][key] = docs[i][key];
+        }
+      }
+    }
+  });
 });
 
 const getClient = (hostname, cb) => {
@@ -52,7 +68,7 @@ const addClient = (hostname, cb) => {
     "hostname": hostname
   }
 
-  collection.insert(doc, (err) => {
+  collection.insertOne(doc, (err) => {
     assert.equal(err, null);
     cb();
   });
