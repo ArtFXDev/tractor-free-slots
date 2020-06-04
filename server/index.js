@@ -280,8 +280,11 @@ io.on('connection', (socket) => {
   socket.emit('getHostname');
 
   socket.on('setHostname', (data) => {
-    socket.clientId = data;
-    console.log("Client connected: " + data);
+    socket.clientId = data.hostname;
+    console.log("Client connected: " + data.hostname);
+    if(data.version) {
+      console.log("Version: " + data.version);
+    }
     getClient(data, (item) => {
       if(item == null) {
         // log(chalk.yellow(`${data} is not registered in the database`));

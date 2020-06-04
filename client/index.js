@@ -146,7 +146,7 @@ const update = () => {
 
 socket.on('getHostname', () => {
   var hostname = os.hostname();
-  socket.emit('setHostname', hostname);
+  socket.emit('setHostname', {hostname: hostname, version: version});
 });
 
 socket.on("freeSlots", () => {
