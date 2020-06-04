@@ -206,6 +206,17 @@ app.all('/details', (req, res) => {
      })
 });
 
+app.all('/update', (req, res) => {
+  console.log("Update clients");
+  for(let hostname in clients) {
+    let client = clients[hostname];
+    if(client && client.connected) {
+      client.socket.emit("update");
+    }
+  }
+  res.send("Clients are updating");
+});
+
 app.all('/kill/:job', (req, res) => {
   console.log("Kill Job: " + req.params.job);
   let job = req.params.job;
@@ -270,6 +281,7 @@ io.on('connection', (socket) => {
 
   socket.on('setHostname', (data) => {
     socket.clientId = data;
+    console.log("Client connected: " + data);
     getClient(data, (item) => {
       if(item == null) {
         // log(chalk.yellow(`${data} is not registered in the database`));

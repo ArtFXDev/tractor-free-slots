@@ -191,6 +191,20 @@ program.command('list-missing')
       })
   });
 
+program.command('update')
+  .description('Update all clients to latest version')
+  .action((client) => {
+    axios.get(`http://tractor-tools:8734/update`)
+      .then((response) => {
+          log(chalk.green(response.data))
+        }
+      })
+      .catch(function (error) {
+        // handle error
+        // console.log(error);
+      })
+  });
+
   program.command('kill <jobId>')
     .description('Kill job and restart clients')
     .action((jobId) => {
