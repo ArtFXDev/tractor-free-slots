@@ -10,6 +10,8 @@ const fs = require('fs');
 
 const version = 1;
 
+const directoryPathOrigin = "\\\\multifct\\tools\\renderfarm\\ArtFx-Tractor";
+
 const softwareList = [
   "houdini",
   "houdinifx",
@@ -65,6 +67,8 @@ const getAllFolders = (files) => {
     }
   });
 
+  console.log(dirs);
+
   return dirs;
 }
 
@@ -74,30 +78,25 @@ const getLastVersion = (dirs) => {
   let lastVersionFile = null
 
   let file = {
-    versionMax: 0,
-    data: null
+    version: 0,
   }
 
   dirs.forEach((folder) => {
-    if (folder.version > max){
-      file.versionMax = folder.version
-      file.data = folder
+    if (folder.version > max) {
+      file.path = folder.path;
+      file.version = folder.version;
+      file.folder = path.basename(folder.path);
     }
   });
-  console.log(dirs);
-  console.log("max version : "+ file.versionMax)
+  console.log("max version : "+ file.version)
 
   return file;
 }
 
 
 const update = () => {
-  //Check online lastVersion
-  const directoryPathOrigin = "\\\\multifct\\tools\\renderfarm\\ArtFx-Tractor";
-
   //passing directoryPath and callback function
   fs.readdir(directoryPathOrigin, function (err, files) {
-
     //handling error
     if (err) {
       return console.log('Unable to scan directory: ' + err);
@@ -109,19 +108,22 @@ const update = () => {
     const directoryPathLocal = "C:\\ArtFx-Tractor";
 
     //Check local lastVersion
-    fs.readdir(directoryPathLocal, function (err, files) {
-
-      //handling error
-      if (err) {
-        return console.log('Unable to scan directory: ' + err);
-      }
-
-      let dirsLocal = getAllFolders(files);
-      let localV = getLastVersion(dirsLocal);
+    // fs.readdir(directoryPathLocal, function (err, files) {
+    //
+    //   //handling error
+    //   if (err) {
+    //     return console.log('Unable to scan directory: ' + err);
+    //   }
+    //
+    //   let dirsLocal = getAllFolders(files);
+    //   let localV = getLastVersion(dirsLocal);
 
       // destination will be created or overwritten by default if new version.
-      if (  localV.versionMax > lastV.versionMax){
-        fs.copyFile(path.join(localV.data.path, 'ArtFx-Tractor-Tool.exe'), 'C:\\ArtFx-Tractor\\ArtFx-Tractor-Tool.exe', (err) => {
+      if (  lastV.version > version){
+        console.log(lastV);
+        let destPath = path.join("C:\\ArtFx-Tractor", lastV.folder);
+        fs.mkdirSync(destPath);
+        fs.copyFile(path.join(lastV.path, 'ArtFx-Tractor-Tool.exe'), path.join(destPath, 'ArtFx-Tractor-Tool.exe'), (err) => {
           if (err) throw err;
           console.log('New version. File was copied to destination');
 
@@ -138,7 +140,7 @@ const update = () => {
           });
         });
       }
-    })
+    // })
   });
 }
 

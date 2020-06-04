@@ -196,8 +196,7 @@ program.command('update')
   .action((client) => {
     axios.get(`http://tractor-tools:8734/update`)
       .then((response) => {
-          log(chalk.green(response.data))
-        }
+          log(chalk.green(response.data));
       })
       .catch(function (error) {
         // handle error
