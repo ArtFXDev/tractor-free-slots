@@ -280,14 +280,19 @@ io.on('connection', (socket) => {
   socket.emit('getHostname');
 
   socket.on('setHostname', (data) => {
-    socket.clientId = data.hostname;
-    console.log("Client connected: " + data.hostname);
+    // if(data.hostname) {
+    //   socket.clientId = data.hostname;
+    // } else {
+    //   socket.clientId = data;
+    //   console.log("Client connected: " + data);
+    // }
     if(data.version) {
+      console.log("Client connected: " + data.hostname);
       console.log("Version: " + data.version);
     }
     getClient(data, (item) => {
       if(item == null) {
-        // log(chalk.yellow(`${data} is not registered in the database`));
+        log(chalk.yellow(`${data} is not registered in the database`));
         addClient(data, () => {
           // log(chalk.green(`${data} added to the database`));
           // axios.get(`http://tractor/Tractor/monitor?q=bdetails&b=${item.hostname}`)

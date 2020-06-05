@@ -122,8 +122,13 @@ const update = () => {
       if (  lastV.version > version){
         console.log(lastV);
         let destPath = path.join("C:\\ArtFx-Tractor", lastV.folder);
-        fs.mkdirSync(destPath);
-        fs.copyFile(path.join(lastV.path, 'ArtFx-Tractor-Tool.exe'), path.join(destPath, 'ArtFx-Tractor-Tool.exe'), (err) => {
+        try {
+          fs.mkdirSync(destPath);
+
+        } catch (e) {
+
+        }
+        fs.copyFile(path.join(lastV.path, 'ArtFx-Tractor-Tool.exe'), path.join(destPath, 'ArtFx-Tractor-Tool.exe'), fs.constants.COPYFILE_FICLONE, (err) => {
           if (err) throw err;
           console.log('New version. File was copied to destination');
 
@@ -137,6 +142,7 @@ const update = () => {
               return;
             }
             console.log(`stdout: ${stdout}`);
+            process.exit();
           });
         });
       }
