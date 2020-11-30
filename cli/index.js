@@ -16,7 +16,7 @@ program.command('reboot [clients...]')
   .action((clients, cmd) => {
     let options = cmd.opts();
     if(options.all) {
-      axios.post(`http://tractor-tools:8734/reboot/all`)
+      axios.post(`http://tractor:8734/reboot/all`)
         .then((response) => {
           log(chalk.cyan(response.data))
         })
@@ -36,7 +36,7 @@ program.command('reboot [clients...]')
         log(chalk.blue.bold("tractor-tools reboot --all"));
         return;
       }
-      axios.post(`http://tractor-tools:8734/reboot`, {clients: clients})
+      axios.post(`http://tractor:8734/reboot`, {clients: clients})
         .then((response) => {
           let data = response.data;
           if(data.message) {
@@ -60,7 +60,7 @@ program.command('pool <name> [clients...]')
     let options = cmd.opts();
     if(options.file != undefined) {
       let hostnames = fs.readFileSync(options.file, 'utf8').split('\r\n');
-      axios.post(`http://tractor-tools:8734/pools/${name}`, {clients: hostnames})
+      axios.post(`http://tractor:8734/pools/${name}`, {clients: hostnames})
         .then((response) => {
           log(response.data);
           log(chalk.cyan("Reload the Blade config on Tractor to accelerate the pool change"));
@@ -81,7 +81,7 @@ program.command('pool <name> [clients...]')
         return;
       }
 
-      axios.post(`http://tractor-tools:8734/pools/${name}`, {clients: clients})
+      axios.post(`http://tractor:8734/pools/${name}`, {clients: clients})
         .then((response) => {
           log(response.data);
           log(chalk.cyan("Reload the Blade config on Tractor to accelerate the pool change"));
@@ -110,7 +110,7 @@ program.command('details [clients...]')
     }
     if(options.file != undefined) {
       let hostnames = fs.readFileSync(options.file, 'utf8').split('\r\n');
-      axios.post(`http://tractor-tools:8734/details`, {clients: hostnames})
+      axios.post(`http://tractor:8734/details`, {clients: hostnames})
         .then((response) => {
           let data = response.data;
           let clients = [];
@@ -145,7 +145,7 @@ program.command('details [clients...]')
         return;
       }
 
-      axios.post(`http://tractor-tools:8734/details`, {clients: clients})
+      axios.post(`http://tractor:8734/details`, {clients: clients})
         .then((response) => {
           let data = response.data;
           let clients = [];
@@ -175,7 +175,7 @@ program.command('details [clients...]')
 program.command('list-missing')
   .description('Get clients that are not connected to the server')
   .action((client) => {
-    axios.get(`http://tractor-tools:8734/list-missing`)
+    axios.get(`http://tractor:8734/list-missing`)
       .then((response) => {
         let data = response.data;
         // if(data.error) {
@@ -194,7 +194,7 @@ program.command('list-missing')
 program.command('update')
   .description('Update all clients to latest version')
   .action((client) => {
-    axios.get(`http://tractor-tools:8734/update`)
+    axios.get(`http://tractor:8734/update`)
       .then((response) => {
           log(chalk.green(response.data));
       })
@@ -207,7 +207,7 @@ program.command('update')
   program.command('kill <jobId>')
     .description('Kill job and restart clients')
     .action((jobId) => {
-      axios.get(`http://tractor-tools:8734/kill/${jobId}`)
+      axios.get(`http://tractor:8734/kill/${jobId}`)
         .then((response) => {
           let data = response.data;
           log(chalk.cyan(data));
@@ -221,7 +221,7 @@ program.command('update')
   program.command('create-job')
     .description('Create job on Tractor')
     .action(() => {
-      axios.post(`http://tractor-tools:8734/create-job`)
+      axios.post(`http://tractor:8734/create-job`)
         .then((response) => {
           let data = response.data;
           log(chalk.cyan(data));

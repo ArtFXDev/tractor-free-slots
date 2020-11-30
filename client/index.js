@@ -22,7 +22,7 @@ const softwareList = [
   "Nuke11.3"
 ];
 
-const socket = io("http://tractor-tools:8734");
+const socket = io("http://tractor:8734");
 
 const killProcesses = (pids) => {
   pids.forEach((pid) => {
