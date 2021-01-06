@@ -7,7 +7,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chalk": "^4.0.0",
     "chalk-table": "^1.0.2",
     "commander": "^5.1.0",
